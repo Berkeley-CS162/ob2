@@ -19,14 +19,6 @@ def migrate():
 
         # Migration 1: Create options table
         if schema_version is None:
-            assert sys.stdin.isatty(), ("Cowardly refusing to perform database migration if I'm "
-                                        "not connected to an actual human.\n"
-                                        "Please run the database migration interactively, and "
-                                        "I'll never demand your attention again.")
-            response = raw_input("Looks like the database db.sqlite3 hasn't been set up yet.\n" +
-                                 "Set it up now? [Yn] ")
-            if "yes"[:len(response)] != response.lower():
-                sys.exit(0)
             print "Running initial migration"
             c.execute('''CREATE TABLE options (
                          key TEXT PRIMARY KEY, value TEXT)''')

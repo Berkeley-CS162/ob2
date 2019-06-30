@@ -1,0 +1,16 @@
+version: '3'
+services:
+  ob2:
+    image: cs162/ob2:latest
+    ports: 
+     - "5002:5002"
+    privileged: true
+    volumes:
+     - ./db:/ob2/db
+     - ../config:/ob2/config
+     - ../ob2:/ob2/ob2
+     - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+     - "OB2_CONFIG_PATHS=/ob2/config"
+    extra_hosts:
+     - "localhost.localdomain:127.0.0.1"
