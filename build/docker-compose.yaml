@@ -12,5 +12,3 @@ services:
      - /var/run/docker.sock:/var/run/docker.sock
     environment:
      - "OB2_CONFIG_PATHS=/ob2/config"
-    extra_hosts:
-     - "localhost.localdomain:127.0.0.1"
