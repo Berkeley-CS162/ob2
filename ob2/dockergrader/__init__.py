@@ -12,7 +12,7 @@ def reset_grader():
     with DbCursor() as c:
         c.execute("UPDATE builds SET status = ? WHERE status in (?, ?)",
                   [FAILED, QUEUED, IN_PROGRESS])
-    DockerClient().clean()
+    # DockerClient().clean()
 
 
 def main():

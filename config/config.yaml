@@ -5,7 +5,7 @@
 debug_mode: true
 
 # The location of the SQLite database (relative to this file)
-database_path: ../db.sqlite3
+database_path: ../db/db.sqlite3
 
 # A name like "CS162: Operating Systems"
 course_name: "[course_name]"
