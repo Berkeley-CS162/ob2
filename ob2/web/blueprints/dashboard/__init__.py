@@ -16,6 +16,7 @@ from ob2.database.helpers import (
     get_user_by_id,
     get_user_by_github,
     modify_grouplimit,
+    sum_slipunits_by_user,
 )
 from ob2.dockergrader import dockergrader_queue, Job
 from ob2.mailer import create_email, mailer_queue
@@ -102,6 +103,14 @@ def assignments_one(name):
             can_build = False
         else:
             can_build = now_compare(assignment.cannot_build_after) <= 0
+
+        if now_compare(assignment.due_date) > 0:
+            if assignment.category not in config.slips_units_by_category:
+                can_build = False
+            max_slip_days = config.slips_units_by_category[assignment.category]
+            assignments_of_category = [a for a in config.assigments if a.category == assignment.category]
+            if sum_slipunits_by_user(user_id, assignments_of_category) >= max_slip_days:
+                can_build = False
 
         if not is_visible:
             abort(404)
@@ -246,6 +255,14 @@ def build_now():
 
         if repo not in repos:
             abort(403)
+
+        if now_compare(assignment.due_date) > 0:
+            if assignment.category not in config.slips_units_by_category:
+                abort(400)
+            max_slip_days = config.slips_units_by_category[assignment.category]
+            assignments_of_category = [a for a in config.assigments if a.category == assignment.category]
+            if sum_slipunits_by_user(user_id, assignments_of_category) >= max_slip_days:
+                abort(400)
 
     branch_hash = get_branch_hash(repo, "master")
     message = None
