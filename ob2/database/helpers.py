@@ -183,6 +183,13 @@ def create_build(c, job_name, source, commit, message):
     return build_name
 
 
+def sum_slipunits_by_user(c, user, assignments):
+    c.execute('''SELECT SUM(slipunits) FROM grades WHERE user = ? AND assignment IN (%s)''' %
+              (','.join(['?'] * len(assignments))), [user] + assignments)
+    units, = c.fetchone()
+    return int(units)
+
+
 def assign_grade_batch(c, users, assignment, score, slipunits, transaction_name, description,
                        source, manual=False, dont_lower=False):
     """

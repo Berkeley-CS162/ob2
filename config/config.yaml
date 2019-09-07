@@ -79,6 +79,8 @@ slip_unit_name_singular: "day"
 slip_unit_name_plural: "days"
 slip_seconds_per_unit: 86400
 slip_grace_period: 0
+slips_units_by_category:
+  Homework: 4
 
 # Whether to use the build with the max score to assign scores and slip days.
 # If false, then the most recent build will be used to assign scores and slip days.
