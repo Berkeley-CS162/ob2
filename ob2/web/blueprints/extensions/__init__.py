@@ -65,17 +65,19 @@ def extensions():
 
         with DbCursor() as c:
             if not is_group:
-                c.execute("SELECT sid FROM users WHERE login = ?", [login])
+                c.execute("SELECT name, sid, email FROM users WHERE login = ?", [login])
                 (name, db_sid, email) = c.fetchone()
 
                 if sid != db_sid:
                     return ("Student ID in request does not match database", 400)
             else:
-                c.execute("SELECT sid FROM users WHERE login = ?", [login])
-                sids = c.fetchall()
+                c.execute("SELECT users.name, users.sid, users.email FROM users LEFT JOIN groupsusers ON users.id = groupsusers.user WHERE users.sid = ? AND groupsusers.`group` = ?", [sid, login])
+                res = c.fetchone()
 
-                if (sid) not in sids:
+                if res is None:
                     return ("Student ID in request does not match database", 400)
+
+                (name, db_sid, email) = res
 
             c.execute(
                 "INSERT INTO extensions (user, assignment, days) VALUES (?, ?, ?)",
@@ -83,7 +85,7 @@ def extensions():
             )
             c.execute("SELECT last_insert_rowid()")
             (extension_id,) = c.fetchone()
-            if config.mailer_enabled:
+            if config.mailer_enabled and not is_group:
                 try:
                     _cc = config.agext_cc_emails
                 except AttributeError:

@@ -61,7 +61,10 @@ def status_color(status):
 
 
 def status_bar(score, full_score=1, size=100):
-    fraction = float(score) / full_score
+    if full_score != 0:
+        fraction = float(score) / full_score
+    else:
+        fraction = 1.0
     if fraction > 1.0:
         fraction = 1.0
     if fraction < 0.0:
