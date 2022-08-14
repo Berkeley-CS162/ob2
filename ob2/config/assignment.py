@@ -83,12 +83,13 @@ class Assignment(object):
         parse_time = DateParser.parse
 
         due_date = parse_time(self.due_date) + extend_by
-        end_auto_building = parse_time(self.end_auto_building) + extend_by
-        cannot_build_after = parse_time(self.cannot_build_after) + extend_by
-        
         exceptions["due_date"] = due_date
-        exceptions["end_auto_building"] = end_auto_building
-        exceptions["cannot_build_after"] = cannot_build_after
+
+        if not self.manual_grading:
+            end_auto_building = parse_time(self.end_auto_building) + extend_by
+            cannot_build_after = parse_time(self.cannot_build_after) + extend_by
+            exceptions["end_auto_building"] = end_auto_building
+            exceptions["cannot_build_after"] = cannot_build_after
 
         if login in self.staff_logins:
             admin_preview_time = timedelta(days=365)
