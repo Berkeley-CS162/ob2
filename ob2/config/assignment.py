@@ -94,7 +94,8 @@ class Assignment(object):
         if login in self.staff_logins:
             admin_preview_time = timedelta(days=365)
             exceptions["not_visible_before"] = parse_time(self.not_visible_before) - admin_preview_time
-            exceptions["start_auto_building"] = parse_time(self.start_auto_building) - admin_preview_time
+            if not self.manual_grading:
+                exceptions["start_auto_building"] = parse_time(self.start_auto_building) - admin_preview_time
 
         return AssignmentStudentView(login, self, exceptions=exceptions)
 
