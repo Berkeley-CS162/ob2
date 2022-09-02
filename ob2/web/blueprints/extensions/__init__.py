@@ -47,7 +47,7 @@ def extensions():
             else:
                 return "days"
 
-        if approve_days != days:
+        if approve_days != -1 and approve_days != days:
             message = (
                 "Your original request was for %d %s, but we've approved an extension for %d %s. %s"
                 % (days, get_unit(days), approve_days, get_unit(approve_days), message)
@@ -79,12 +79,16 @@ def extensions():
 
                 (name, db_sid, email) = res
 
-            c.execute(
-                "INSERT INTO extensions (user, assignment, days) VALUES (?, ?, ?)",
-                [login, assignment_name, approve_days],
-            )
-            c.execute("SELECT last_insert_rowid()")
-            (extension_id,) = c.fetchone()
+            if approve_days != -1:
+                c.execute(
+                    "INSERT INTO extensions (user, assignment, days) VALUES (?, ?, ?)",
+                    [login, assignment_name, approve_days],
+                )
+                c.execute("SELECT last_insert_rowid()")
+                (extension_id,) = c.fetchone()
+            else:
+                extension_id = -1
+
             if config.mailer_enabled and not is_group:
                 try:
                     _cc = config.agext_cc_emails
@@ -92,19 +96,33 @@ def extensions():
                     _cc = []
                 assignment = assignment.student_view(c, login)
                 due_date = parse_to_relative(assignment.due_date, 0, 0)
-                email_payload = create_email(
-                    "extension_confirm",
-                    email,
-                    "[CS 162] Extension Request Reviewed - %s" % assignment_name,
-                    _cc=_cc,
-                    name=name,
-                    days=approve_days,
-                    assignment=assignment_name,
-                    due_date=due_date,
-                    message=message,
-                )
-                mailer_job = mailer_queue.create(c, "send", email_payload)
-                mailer_queue.enqueue(mailer_job)
+
+                if approve_days != -1:
+                    email_payload = create_email(
+                        "extension_confirm",
+                        email,
+                        "[CS 162] Extension Request Reviewed - %s" % assignment_name,
+                        _cc=_cc,
+                        name=name,
+                        days=approve_days,
+                        assignment=assignment_name,
+                        due_date=due_date,
+                        message=message,
+                    )
+                    mailer_job = mailer_queue.create(c, "send", email_payload)
+                    mailer_queue.enqueue(mailer_job)
+                else:
+                    email_payload = create_email(
+                        "extension_reject",
+                        email,
+                        "[CS 162] Extension Request Reviewed - %s" % assignment_name,
+                        _cc=_cc,
+                        name=name,
+                        assignment=assignment_name,
+                        message=message,
+                    )
+                    mailer_job = mailer_queue.create(c, "send", email_payload)
+                    mailer_queue.enqueue(mailer_job)
 
         res = {}
         res["status"] = "OK"
