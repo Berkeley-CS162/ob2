@@ -1,7 +1,6 @@
 Hi {{ name }},
 
-We have granted you a {{ days }} day extension on {{ assignment }}.
-The new deadline for this assignment is: {{ due_date }} Pacific Time.
+We have turned down your extension request on {{ assignment }}.
 
 {% if message|length > 1 %}
   Note: {{ message }}
