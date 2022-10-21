@@ -61,8 +61,6 @@ class Assignment(object):
             start_auto_building = parse_time(self.start_auto_building)
             end_auto_building = parse_time(self.end_auto_building)
             cannot_build_after = parse_time(self.cannot_build_after)
-            assert (not_visible_before <= start_auto_building <= end_auto_building <=
-                    cannot_build_after)
 
     def __getattr__(self, key):
         if key == "staff_logins":
