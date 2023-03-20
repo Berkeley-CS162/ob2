@@ -54,7 +54,7 @@ def authentication_provider_get_token(code, state):
 
 def get_username_from_token(token):
     github = github3.login(token=token)
-    github_user = github.me()
+    github_user = github.user()
     return github_user.login
 
 

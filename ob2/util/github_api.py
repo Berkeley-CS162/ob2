@@ -16,7 +16,7 @@ def get_branch_hash(repo_name, branch_name="master"):
     try:
         repository = github.repository(config.github_organization, repo_name)
         return repository.branch(branch_name).commit.sha
-    except (AttributeError, github3.exceptions.NotFoundError):
+    except AttributeError:
         pass
 
 
@@ -73,7 +73,7 @@ def _assign_repo(repo_name, members=[]):
     fq_repo_name = "%s/%s" % (config.github_organization, repo_name)
     organization = github.organization(config.github_organization)
     try:
-        repo = organization.create_repository(repo_name, private=config.github_private_repos)
+        repo = organization.create_repo(repo_name, private=config.github_private_repos)
     except github3.GitHubError as e:
         if e.args and hasattr(e.args[0], "status_code") and e.args[0].status_code == 422:
             repo = github.repository(config.github_organization, repo_name)
@@ -81,7 +81,7 @@ def _assign_repo(repo_name, members=[]):
         else:
             raise
 
-    collaborators = {user.login for user in repo.collaborators()}
+    collaborators = {user.login for user in repo.iter_collaborators()}
 
     for member in members:
         if member not in collaborators:
