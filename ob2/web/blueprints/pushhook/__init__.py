@@ -26,7 +26,7 @@ def pushhook():
                             str(payload.get("action")))
             return ('', 204)
         ref = payload["ref"]
-        before = payload["commits"][-2]["id"]
+        before = payload["before"]
         after = payload["after"]
         assert isinstance(ref, str)
         assert isinstance(before, str)
