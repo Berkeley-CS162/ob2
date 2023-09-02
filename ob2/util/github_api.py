@@ -121,7 +121,7 @@ def _resend_invites(repo_name, members=[]):
         raise RuntimeError("Cannot assign repo because of GitHub read-only mode")
     github = _get_github_admin()
     repo = github.repository(config.github_organization, repo_name)
-    collaborators = {user.login for user in repo.iter_collaborators()}
+    collaborators = {user.login for user in repo.collaborators()}
     for member in members:
         if member not in collaborators:
             # See above _assign_repo comment
