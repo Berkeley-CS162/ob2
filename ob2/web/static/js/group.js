@@ -43,17 +43,4 @@ $(document).ready(function () {
     $.each(last_row, function (_, component) {
         component.find("input[type=text]").on("input", push_new_row);
     });
-
-    const form = document.querySelector('#group-create-form-container form');
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const confirmation = prompt('Type "CONFIRM" to create the group:');
-        if (confirmation === 'CONFIRM') {
-            form.submit();
-        } else {
-            alert('Group creation canceled.');
-        }
-    });
-
 });
