@@ -48,7 +48,7 @@ $(document).ready(function () {
     form.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const confirmation = prompt('Type "CONFIRM" to create the group:');
+        const confirmation = prompt('Are you sure you entered all members of your group? Type "CONFIRM" to create the group:');
         if (confirmation === 'CONFIRM') {
             form.submit();
         } else {
