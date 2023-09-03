@@ -202,7 +202,7 @@ def safe_get_results(output_file_path, score_file_path):
             score = float(score)
             return output, score
     except Exception as e:
-        logging.exception("safe_get_results(): failed due to {e}")
+        logging.exception(f"safe_get_results(): failed due to {e}")
         if score1 is None:
             logging.exception("oh no")
         else:
