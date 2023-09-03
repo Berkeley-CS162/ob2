@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     var group_min = group_limits[0];
     var group_max = group_limits[1];
@@ -8,15 +8,15 @@ $(document).ready(function() {
     }
 
     var pristine_row = [];
-    $.each(get_last_row(), function(_, component) {
+    $.each(get_last_row(), function (_, component) {
         pristine_row.push(component.clone());
     });
 
     function add_row() {
         var container = $(".js-ob2__rows");
-        $.each(pristine_row, function(_, component) {
+        $.each(pristine_row, function (_, component) {
             var component_copy = component.clone();
-            component_copy.find(".mdl-js-textfield").each(function(_, textfield) {
+            component_copy.find(".mdl-js-textfield").each(function (_, textfield) {
                 delete textfield.dataset["upgraded"];
                 textfield.classList.remove("is-upgraded");
             });
@@ -30,18 +30,30 @@ $(document).ready(function() {
     function push_new_row() {
         if ($(this).val().length > 0 && $(".js-ob2__div_student").length < group_max - 1) {
             add_row();
-            $.each(last_row, function(_, component) {
+            $.each(last_row, function (_, component) {
                 component.find("input[type=text]").off("input");
             });
             last_row = get_last_row();
-            $.each(last_row, function(_, component) {
+            $.each(last_row, function (_, component) {
                 component.find("input[type=text]").on("input", push_new_row);
             });
         }
     }
 
-    $.each(last_row, function(_, component) {
+    $.each(last_row, function (_, component) {
         component.find("input[type=text]").on("input", push_new_row);
+    });
+
+    const form = document.querySelector('#group-create-form-container form');
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const confirmation = prompt('Type "CONFIRM" to create the group:');
+        if (confirmation === 'CONFIRM') {
+            form.submit();
+        } else {
+            alert('Group creation canceled.');
+        }
     });
 
 });

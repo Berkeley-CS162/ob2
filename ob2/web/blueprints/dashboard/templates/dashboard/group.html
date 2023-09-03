@@ -111,7 +111,7 @@
 {% endif %}
 {% if can_add_groups %}
 <div class="ob2-content mdl-cell mdl-cell--12-col mdl-color--white
-    mdl-color-text--grey-800 mdl-shadow--2dp">
+    mdl-color-text--grey-800 mdl-shadow--2dp" id="group-create-form-container">
     <form action="{{ url_for("dashboard.group_create") }}" method="post" autocomplete="off">
         <input type="hidden" name="_csrf_token" value="{{ generate_csrf_token() }}" />
         <h4>Create a new group</h4>
