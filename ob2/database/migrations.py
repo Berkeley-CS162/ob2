@@ -59,7 +59,7 @@ def migrate():
             print("Running migration 4: Create builds table")
             c.execute('''CREATE TABLE builds (
                          build_name TEXT, source TEXT, `commit` TEXT, message TEXT, job TEXT,
-                         status INT, score REAL, started TEXT, updated TEXT, log TEXT)''')
+                         status INT, score REAL, started TEXT, updated TEXT, log TEXT, container_id TEXT)''')
             c.execute("UPDATE options SET value = '4' WHERE key = 'schema_version'")
             schema_version = "4"
 

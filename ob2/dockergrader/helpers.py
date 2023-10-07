@@ -209,8 +209,8 @@ def safe_get_results(output_file_path, score_file_path):
             logging.exception(":" + score1 + ":")
         if output is not None:
             logging.critical(output)
-        raise JobFailedError("There was a failure in the internals of the autograder. Notify " +
-                             "your TA, and maybe I will get fixed.")
+        raise JobFailedError("There was a failure in the internals of the autograder. Please " +
+                             "post on Ed if this hasn't been reported yet, and maybe I will get fixed.")
 
 
 def bash_quote(s):

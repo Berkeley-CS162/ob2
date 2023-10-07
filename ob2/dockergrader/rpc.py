@@ -19,7 +19,7 @@ class DockerClient(object):
             self.client.remove_image(image=image, force=True)
 
     def start(self, image, mem_limit="1024m", memswap_limit="1024m", labels=[], volumes={},
-              max_procs=256, max_files=256):
+              max_procs=256, max_files=256, keep_container=False):
         """
         Starts a new container and returns the container ID for use.
 
@@ -30,6 +30,7 @@ class DockerClient(object):
                       container.
         max_procs  -- The ulimit nproc
         max_files  -- The ulimit nofile
+        keep_container -- Do not delete Docker container after running
 
         """
         host_config = {"mem_limit": mem_limit,
@@ -55,7 +56,7 @@ class DockerClient(object):
         #     isolation, memory limits, etc (huge problems).
         self.client.start(container_id)
 
-        return Container(self, container['Id'])
+        return Container(self, container['Id'], keep_alive=keep_container)
 
     def stop(self, container_id, v=True, force=True):
         """
@@ -88,10 +89,11 @@ class DockerClient(object):
 
 
 class Container(object):
-    def __init__(self, docker_client, container_id):
+    def __init__(self, docker_client, container_id, keep_alive=False):
         """A convenience object that represents a single container."""
         self.docker_client = docker_client
         self.container_id = container_id
+        self.keep_alive = keep_alive
 
     def run_command(self, *args, **kwargs):
         return self.docker_client.run_command(self.container_id, *args, **kwargs)
@@ -106,7 +108,8 @@ class Container(object):
         return self
 
     def __exit__(self, *args):
-        self.stop()
+        if not self.keep_alive:
+            self.stop()
 
 
 class TimeoutError(Exception):

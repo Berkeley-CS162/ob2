@@ -31,7 +31,10 @@ def pushhook():
             commit_idx = -2
         else:
             commit_idx = 0
-        before = commits[commit_idx]["id"]
+        try:
+            before = commits[commit_idx]["id"]
+        except:
+            logging.critical(f"Commits pushook index out of range; commit_idx: {commit_idx}")
         after = payload["after"]
         assert isinstance(ref, str)
         assert isinstance(before, str)

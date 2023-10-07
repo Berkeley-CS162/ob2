@@ -229,7 +229,7 @@ def builds_one(name):
         group_repos = get_groups(c, user_id)
         repos = [login] + group_repos
         c.execute('''SELECT build_name, status, score, source, `commit`, message, job, started,
-                     log FROM builds WHERE build_name = ? AND source in (%s)
+                     log, container_id FROM builds WHERE build_name = ? AND source in (%s)
                      LIMIT 1''' % (",".join(["?"] * len(repos))),
                   [name] + repos)
         build = c.fetchone()
@@ -293,6 +293,17 @@ def build_now():
     job_name = request.form.get("f_job_name")
     repo = request.form.get("f_repo")
     graded = False if "f_graded" in request.form and request.form.get("f_graded") == "False" else True
+    debug_mode = True if "f_debugging" in request.form and request.form.get("f_debugging") == "True" else False
+    if debug_mode:
+        if not is_ta():
+            if request.method == "GET":
+                session["login_next__ta"] = request.base_url
+            elif "login_next__ta" in session:
+                del session["login_next__ta"]
+            return redirect(url_for("onboarding.log_in"))
+        else:
+            if "login_next__ta" in session:
+                del session["login_next__ta"]
     assignment = get_assignment_by_name(job_name)
     if not assignment:
         abort(400)
@@ -335,7 +346,7 @@ def build_now():
     if should_limit_source(repo, job_name):
         rate_limit_fail_build(build_name)
     else:
-        job = Job(build_name, repo, "Manual build.", graded)
+        job = Job(build_name, repo, "Manual build.", graded, debug_mode)
         dockergrader_queue.enqueue(job)
 
     return redirect(url_for("dashboard.builds_one", name=build_name))

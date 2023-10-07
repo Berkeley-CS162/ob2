@@ -26,6 +26,26 @@
     </tr>
 {% endmacro %}
 
+{% macro row_container_id(container_id) %}
+    <tr>
+        <td class="mdl-data-table__cell--non-numeric">
+            Docker Container ID 
+        </td>
+    <td class="mdl-data-table__cell--non-numeric" colspan="2">
+        {{ container_id }}
+        <span id="copyid" class="icon material-icons ob2-inline-icon js-copy-btn">content_copy</span>
+        <span class="mdl-tooltip" for="copyid">Copy Docker exec command</span>
+        <textarea class="ob2-offscreen-hide js-copytxt" for="copyid">docker exec -ti {{ container_id }} bash</textarea>
+        <br>
+        Docker rm command
+        <span id="copyrm" class="icon material-icons ob2-inline-icon js-copy-btn">content_copy</span>
+        <span class="mdl-tooltip" for="copyrm">Copy Docker rm command</span>
+        <textarea class="ob2-offscreen-hide js-copytxt" for="copyrm">docker rm -f {{ container_id }} </textarea>
+    </td>
+    </tr>
+    <script src="{{ url_for("static", filename="js/copy_text.js") }}"></script>
+{% endmacro %}
+
 {% macro cell_status(status, score, full_score) %}
     <td class="mdl-data-table__cell--non-numeric" style="min-width: 120px;">
     {% if status == SUCCESS %}

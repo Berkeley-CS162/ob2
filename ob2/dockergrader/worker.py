@@ -1,4 +1,5 @@
 import apsw
+import inspect
 import logging
 import re
 import threading
@@ -98,7 +99,13 @@ class Worker(object):
             # and logged
             due_date = assignment.due_date
             job_handler = get_job(job_name)
-            log, score = job_handler(source, commit)
+            num_args = len(inspect.signature(job_handler).parameters)
+            container_id = None
+            if num_args == 2:
+                log, score = job_handler(source, commit)
+            elif num_args == 3:
+                log, score, container_id = job_handler(source, commit, job.debug_mode)
+            
             # log is of type 'bytes'
             min_score, max_score = assignment.min_score, assignment.max_score
             full_score = assignment.full_score
@@ -149,8 +156,8 @@ class Worker(object):
             try:
                 with DbCursor() as c:
                     c.execute('''UPDATE builds SET status = ?, score = ?, updated = ?,
-                                 log = ? WHERE build_name = ?''',
-                              [SUCCESS, score, now_str(), log, build_name])
+                                 log = ?, container_id = ? WHERE build_name = ?''',
+                              [SUCCESS, score, now_str(), log, container_id, build_name])
                     slipunits = slip_units(due_date, started)
                     if job.graded:
                         affected_users = assign_grade_batch(c, owners, job_name, float(score),
@@ -165,7 +172,7 @@ class Worker(object):
                 logging.exception("Failed to update build %s after build completed" % build_name)
                 return
 
-        if config.mailer_enabled:
+        if config.mailer_enabled and not job.debug_mode:
             try:
                 for owner in owners:
                     email = owner_emails.get(owner)

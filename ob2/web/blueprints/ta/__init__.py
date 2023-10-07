@@ -380,7 +380,7 @@ def builds(page):
 def builds_one(name):
     with DbCursor() as c:
         c.execute('''SELECT build_name, status, score, source, `commit`, message, job, started,
-                     log FROM builds WHERE build_name = ? LIMIT 1''', [name])
+                     log, container_id FROM builds WHERE build_name = ? LIMIT 1''', [name])
         build = c.fetchone()
         if not build:
             abort(404)
