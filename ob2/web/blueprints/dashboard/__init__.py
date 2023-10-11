@@ -248,7 +248,7 @@ def builds_one_stop(name):
         user_id, _, _, login, _, _ = _get_student(c)
         repos = [login] + get_groups(c, user_id)
         c.execute('''SELECT build_name, status, score, source, `commit`, message, job, started,
-                     log FROM builds WHERE build_name = ? AND source in (%s)
+                     log, container_id FROM builds WHERE build_name = ? AND source in (%s)
                      LIMIT 1''' % (",".join(["?"] * len(repos))),
                   [name] + repos)
         if not c.fetchone():
@@ -277,7 +277,7 @@ def builds_one_stop(name):
         group_repos = get_groups(c, user_id)
         repos = [login] + group_repos
         c.execute('''SELECT build_name, status, score, source, `commit`, message, job, started,
-                     log FROM builds WHERE build_name = ? AND source in (%s)
+                     log, container_id FROM builds WHERE build_name = ? AND source in (%s)
                      LIMIT 1''' % (",".join(["?"] * len(repos))),
                   [name] + repos)
         build = c.fetchone()
