@@ -26,16 +26,12 @@ def pushhook():
                             str(payload.get("action")))
             return ('', 204)
         ref = payload["ref"]
-        commits = payload["commits"]
-        if len(commits) > 1:
-            commit_idx = -2
-        else:
-            commit_idx = 0
-        try:
-            before = commits[commit_idx]["id"]
-        except:
-            logging.critical(f"Commits pushook index out of range; commit_idx: {commit_idx}")
         after = payload["after"]
+        before = payload["before"]
+        null_payload = "0000000000000000000000000000000000000000"
+        if after == null_payload or before == null_payload:
+            logging.warning(f"Dropped GitHub pushhook payload because before was {before} and after was {after}")
+            return ('', 204)
         assert isinstance(ref, str)
         assert isinstance(before, str)
         assert isinstance(after, str)
@@ -76,9 +72,10 @@ def pushhook():
             if should_limit_source(repo_name, job_to_run):
                 rate_limit_fail_build(build_name)
             else:
+                logging.info(f"Queueing {build_name} for build...")
                 job = Job(build_name, repo_name, "Automatic build.")
                 dockergrader_queue.enqueue(job)
         return ('', 204)
-    except Exception:
-        logging.exception("Error occurred while processing GitHub pushhook payload")
+    except Exception as e:
+        logging.exception(f"Exception {e} occurred while processing GitHub pushhook payload")
         abort(500)
