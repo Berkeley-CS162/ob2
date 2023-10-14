@@ -142,7 +142,7 @@ class Worker(object):
                           [FAILED, now_str(), "Build interrupted.", build_name])
             return
         except Exception as e:
-            self._log("Exception raised while building %s" % build_name, exc=True)
+            self._log(f"Exception {e} raised while building {build_name}", exc=True)
             logging.exception("Internal error within build %s" % build_name)
             with DbCursor() as c:
                 c.execute('''UPDATE builds SET status = ?, updated = ?, log = ?
