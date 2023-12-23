@@ -412,7 +412,7 @@ def builds_one_stop(name):
                         WHERE build_name = ?''',
                     [1, now_str(), "Build interrupted.", name])
         c.execute('''SELECT build_name, status, score, source, `commit`, message, job, started,
-                     log FROM builds WHERE build_name = ? LIMIT 1''', [name])
+                     log, container_id FROM builds WHERE build_name = ? LIMIT 1''', [name])
         build = c.fetchone()
         build_info = build + (get_assignment_by_name(build[6]).full_score,)
     return render_template("ta/builds_one.html",

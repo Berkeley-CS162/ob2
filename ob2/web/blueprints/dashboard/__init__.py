@@ -83,6 +83,9 @@ def assignments():
                   [user_id])
         grade_info = {assignment: (score, slipunits, updated)
                       for assignment, score, slipunits, updated in c.fetchall()}
+        c.execute("SELECT SUM(slipunits) FROM grades WHERE user = ?", [user_id])
+        slip_units_used = c.fetchone()[0]
+        slip_units_total = 4 # TODO: don't hardcode this
         template_common = _template_common(c)
         assignments_info = []
         if not dropped:
@@ -93,6 +96,8 @@ def assignments():
                                 grade_info.get(a.name, (None, None, None)))
     return render_template("dashboard/assignments.html",
                            assignments_info=assignments_info,
+                           slip_units_used=slip_units_used,
+                           slip_units_total=slip_units_total,
                            **template_common)
 
 
