@@ -406,7 +406,7 @@ def builds_one_stop(name):
                         tid = id
             # TODO: quickfix test for py3.10
             tid = worker.tid
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(tid), ctypes.py_object(KeyboardInterrupt))
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_ulong(tid), ctypes.py_object(KeyboardInterrupt))
             # Python 3.7 updates first parameter type to unsigned long
             # This is QUITE the hack...
     with DbCursor() as c:
