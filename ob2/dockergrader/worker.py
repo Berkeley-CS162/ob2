@@ -29,7 +29,7 @@ class Worker(object):
         self.status = None
         self.updated = now()
         self.identifier = dockergrader_queue.register_worker(self)
-        # self.thread = threading.current_thread()
+        self.thread = threading.current_thread()
         # TODO: quickfix test
         self.tid = threading.get_native_id()
 
