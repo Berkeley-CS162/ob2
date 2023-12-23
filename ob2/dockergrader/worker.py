@@ -31,7 +31,7 @@ class Worker(object):
         self.identifier = dockergrader_queue.register_worker(self)
         # self.thread = threading.current_thread()
         # TODO: quickfix test
-        self.thread = threading.get_native_id()
+        self.tid = threading.get_native_id()
 
     def probe(self, with_log=False):
         with self.lock:
