@@ -271,7 +271,8 @@ def builds_one_stop(name):
                     if thread is t:
                         tid = id
             tid = worker.tid
-            worker._log(f"thread id is: {tid}")
+            cur = threading.get_native_id()
+            worker._log(f"killed thread id is: {tid}, cur is {cur}")
             ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(tid), ctypes.py_object(KeyboardInterrupt))
             # Python 3.7 updates first parameter type to unsigned long
             # This is QUITE the hack...
