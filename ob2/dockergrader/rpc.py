@@ -39,7 +39,6 @@ class DockerClient(object):
             'mem_limit': mem_limit, 
             'memswap_limit': memswap_limit,
             "network_mode": "bridge",
-            # "oom_kill_disable": True,
             'labels': labels,
             'volumes': converted_volumes,
             'ulimits': [
@@ -64,7 +63,7 @@ class DockerClient(object):
         force -- Stops container if it is running.
 
         """
-        self.client.remove_container(container_id, v=v, force=force)
+        self.client.containers.get(container_id).remove(v=True, force=True)
 
     def run_command(self, container_id, command, timeout=10):
         try:

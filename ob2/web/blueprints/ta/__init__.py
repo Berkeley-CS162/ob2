@@ -1,5 +1,4 @@
 import apsw
-import binascii
 import csv
 import json
 import io
