@@ -74,6 +74,7 @@ def pushhook():
             else:
                 logging.info(f"Queueing {build_name} for build...")
                 job = Job(build_name, repo_name, "Automatic build.")
+                # TODO: migrate from dockergrader
                 dockergrader_queue.enqueue(job)
         return ('', 204)
     except Exception as e:

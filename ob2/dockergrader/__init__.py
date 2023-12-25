@@ -9,6 +9,7 @@ __all__ = ["Job", "dockergrader_queue"]
 
 
 def reset_grader():
+    # TODO: don't reset the grader always. requeue builds instead.
     with DbCursor() as c:
         c.execute("UPDATE builds SET status = ? WHERE status in (?, ?)",
                   [FAILED, QUEUED, IN_PROGRESS])

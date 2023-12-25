@@ -258,22 +258,19 @@ def builds_one_stop(name):
                   [name] + repos)
         if not c.fetchone():
             abort(404)
+    # TODO: migrate this whole mess
     for job in dockergrader_queue.snapshot():
         if job.build_name == name:
             dockergrader_queue._queue.remove(job)
     for worker in dockergrader_queue._workers:
         if worker.status == name:
-            t, tid = worker.thread, -1
-            if hasattr(t, '_thread_id'):
-                tid = t._thread_id
-            else:
-                for id, thread in threading._active.items():
-                    if thread is t:
-                        tid = id
-            tid = worker.tid
-            cur = threading.get_native_id()
-            worker._log(f"killed thread id is: {tid}, cur is {cur}")
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_ulong(tid), ctypes.py_object(KeyboardInterrupt))
+            t = worker.thread
+            worker._log(f"killed thread id is: {t.ident}, native: {t.native_id}")
+            ptssae = ctypes.pythonapi.PyThreadState_SetAsyncExc
+            ptssae.argtypes = (ctypes.c_long, ctypes.py_object)
+            ptssae.restype = ctypes.c_int
+            res = ptssae(t.ident, KeyboardInterrupt)
+            worker._log(f"result: {res}")
             # Python 3.7 updates first parameter type to unsigned long
             # This is QUITE the hack...
     with DbCursor() as c:
@@ -355,6 +352,7 @@ def build_now():
         rate_limit_fail_build(build_name)
     else:
         job = Job(build_name, repo, "Manual build.", graded, debug_mode)
+        # TODO: migrate from dockergrader
         dockergrader_queue.enqueue(job)
 
     return redirect(url_for("dashboard.builds_one", name=build_name))

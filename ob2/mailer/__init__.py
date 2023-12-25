@@ -7,7 +7,7 @@ from email.utils import make_msgid
 from flask import url_for
 from jinja2 import Environment, PackageLoader
 from os.path import basename
-from werkzeug.urls import url_unparse
+from urllib.parse import urlunsplit
 
 import ob2.config as config
 from ob2.database import DbCursor
@@ -100,7 +100,7 @@ def render_template(template_file_name, **kwargs):
     if app is None:
         raise RuntimeError("No web application registered with mailer")
     template = get_jinja_environment().get_template(template_file_name)
-    base_url = url_unparse(("https" if config.web_https else "http",
+    base_url = urlunsplit(("https" if config.web_https else "http",
                             config.web_public_host, "/", "", ""))
     with app.test_request_context(base_url=base_url):
         return template.render(**kwargs)

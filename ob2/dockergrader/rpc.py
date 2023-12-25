@@ -1,6 +1,5 @@
 import docker
-from docker.utils import create_host_config
-from docker.utils.types import Ulimit
+# from docker.utils import create_host_config
 from requests.exceptions import ConnectionError, ReadTimeout
 
 import ob2.config as config
@@ -8,15 +7,13 @@ import ob2.config as config
 
 class DockerClient(object):
     def __init__(self, sock="unix://var/run/docker.sock"):
-        self.client = docker.Client(base_url=sock, version="auto")
+        self.client = docker.DockerClient(base_url=sock, version="auto")
 
     def clean(self):
-        containers = self.client.containers(quiet=True, all=True)
+        containers = self.client.containers.list(all=True)
         for container in containers:
-            self.client.remove_container(container=container, v=True, force=True)
-        dangling_images = self.client.images(quiet=True, filters={"dangling": True})
-        for image in dangling_images:
-            self.client.remove_image(image=image, force=True)
+            container.remove(v=True, force=True)
+        self.client.images.prune(filters={'dangling': True})
 
     def start(self, image, mem_limit="1024m", memswap_limit="1024m", labels=[], volumes={},
               max_procs=256, max_files=256, keep_container=False):
@@ -33,30 +30,31 @@ class DockerClient(object):
         keep_container -- Do not delete Docker container after running
 
         """
-        host_config = {"mem_limit": mem_limit,
-                       "memswap_limit": memswap_limit,
-                       "network_mode": "bridge",
-                       "ulimits": [Ulimit(name="nproc", soft=max_procs, hard=max_procs),
-                                   Ulimit(name="nofile", soft=max_files, hard=max_files),
-                                   Ulimit(name="nice", soft=5, hard=5)]}
-        if volumes:
-            host_config["binds"] = {local_path: {"bind": remote_path, "ro": False}
-                                    for local_path, remote_path in volumes.items()}
-        if config.dockergrader_apparmor_profile:
-            host_config["security_opt"] = ["apparmor:%s" % config.dockergrader_apparmor_profile]
-        volumes_list = list(volumes.values())
-        container = self.client.create_container(image=image, command="/bin/bash", tty=True,
-                                                 labels=labels, volumes=volumes_list,
-                                                 host_config=create_host_config(**host_config))
-        container_id = container['Id']
+        converted_volumes = {}
+        for local_path, remote_path in volumes.items():
+            converted_volumes[local_path] = {'bind': remote_path, 'mode': 'rw'}
+        run_config = {
+            'image': image,
+            # TODO: figure out why uncommenting causes OOM killer
+            'mem_limit': mem_limit, 
+            'memswap_limit': memswap_limit,
+            "network_mode": "bridge",
+            # "oom_kill_disable": True,
+            'labels': labels,
+            'volumes': converted_volumes,
+            'ulimits': [
+                docker.types.Ulimit(name='nproc', soft=max_procs, hard=max_procs),
+                docker.types.Ulimit(name='nofile', soft=max_files, hard=max_files),
+                docker.types.Ulimit(name='nice', soft=5, hard=5)
+            ],
+            'detach': True,
+            'security_opt': ["apparmor:%s" % config.dockergrader_apparmor_profile] if config.dockergrader_apparmor_profile else [],
+            'tty': True,
+            'command': "/bin/bash"
+        }
 
-        # WARNING: Do not add ANY extra options to this method call.
-        # Due to a bug in Docker-Py, all of our host_config options are clobbered when there are
-        #     kwargs on this function. Adding any arguments here would eliminate our network
-        #     isolation, memory limits, etc (huge problems).
-        self.client.start(container_id)
-
-        return Container(self, container['Id'], keep_alive=keep_container)
+        container = self.client.containers.run(**run_config)
+        return Container(self, container.id, keep_alive=keep_container)
 
     def stop(self, container_id, v=True, force=True):
         """
@@ -69,19 +67,18 @@ class DockerClient(object):
         self.client.remove_container(container_id, v=v, force=force)
 
     def run_command(self, container_id, command, timeout=10):
-        instance = self.client.exec_create(container=container_id, cmd=command, stdout=True,
-                                           stderr=True, tty=False)
-        old_timeout = self.client.timeout
-        self.client.timeout = timeout
         try:
-            output = self.client.exec_start(exec_id=instance['Id'], tty=False, stream=False)
+            exec_instance = self.client.containers.get(container_id).exec_run(
+                cmd=command, stdout=True, stderr=True, tty=False
+            )
+            output = exec_instance.output
             return output
-        except (ConnectionError, ReadTimeout):
-            # For forward-compatibility with whatever decision they make next
-            # https://github.com/kennethreitz/requests/issues/2392
-            raise TimeoutError()
-        finally:
-            self.client.timeout = old_timeout
+        except docker.errors.APIError as e:
+            raise RuntimeError(f"Error executing command: {e}")
+        except docker.errors.ContainerError as e:
+            raise RuntimeError(f"Command failed in container: {e}")
+        except docker.errors.NotFound as e:
+            raise RuntimeError(f"Container not found: {e}")
 
     def bash(self, container_id, payload, user="root", timeout=10):
         return self.run_command(container_id, ["su", "-c", payload, "-s", "/bin/bash", user],

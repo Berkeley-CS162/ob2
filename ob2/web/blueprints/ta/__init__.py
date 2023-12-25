@@ -392,6 +392,7 @@ def builds_one(name):
 @blueprint.route("/ta/builds/<name>/stop", methods=["POST"])
 @_require_ta
 def builds_one_stop(name):
+    # TODO: migrate this mess
     for job in dockergrader_queue.snapshot():
         if job.build_name == name:
             dockergrader_queue._queue.remove(job)
@@ -406,7 +407,7 @@ def builds_one_stop(name):
                         tid = id
             # TODO: quickfix test for py3.10
             tid = worker.tid
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_ulong(tid), ctypes.py_object(KeyboardInterrupt))
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_ulong(t.ident), ctypes.py_object(KeyboardInterrupt))
             # Python 3.7 updates first parameter type to unsigned long
             # This is QUITE the hack...
     with DbCursor() as c:
@@ -681,6 +682,7 @@ def sql():
 @blueprint.route("/ta/queue_status/")
 @_require_ta
 def queue_status():
+    # TODO: migrate from dockergrader
     queue_workers = dockergrader_queue.probe_workers()
     queue_jobs = dockergrader_queue.snapshot()
     return render_template("ta/queue_status.html",
@@ -692,6 +694,8 @@ def queue_status():
 @blueprint.route("/ta/queue_status/worker/<int:identifier>/")
 @_require_ta
 def queue_status_worker(identifier):
+    # TODO: migrate from dockergrader
+
     worker_info = dockergrader_queue.probe_worker(identifier, with_log=True)
     if not worker_info:
         abort(400)

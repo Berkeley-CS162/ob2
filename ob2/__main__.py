@@ -72,6 +72,7 @@ def main():
 
         # Start background threads for all the apps
         # Warning: Do not try to start more than 1 web thread. The web server is already threaded.
+        # TODO: migrate from dockergrader
         apps = [(ob2.dockergrader, config.num_workers),
                 (ob2.web, 1)]
         if config.mailer_enabled:
