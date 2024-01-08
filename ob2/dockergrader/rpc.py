@@ -63,7 +63,7 @@ class DockerClient(object):
         force -- Stops container if it is running.
 
         """
-        self.client.containers.get(container_id).remove(v=True, force=True)
+        self.client.containers.get(container_id).remove(v=v, force=force)
 
     def run_command(self, container_id, command, timeout=10):
         try:

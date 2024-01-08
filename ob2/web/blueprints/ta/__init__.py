@@ -392,21 +392,21 @@ def builds_one(name):
 @_require_ta
 def builds_one_stop(name):
     # TODO: migrate this mess
-    for job in dockergrader_queue.snapshot():
-        if job.build_name == name:
-            dockergrader_queue._queue.remove(job)
-    for worker in dockergrader_queue._workers:
-        if worker.status == name:
-            t, tid = worker.thread, -1
-            if hasattr(t, '_thread_id'):
-                tid = t._thread_id
-            else:
-                for id, thread in threading._active.items():
-                    if thread is t:
-                        tid = id
-            # TODO: quickfix test for py3.10
-            tid = worker.tid
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_ulong(t.ident), ctypes.py_object(KeyboardInterrupt))
+    # for job in dockergrader_queue.snapshot():
+    #     if job.build_name == name:
+    #         dockergrader_queue._queue.remove(job)
+    # for worker in dockergrader_queue._workers:
+    #     if worker.status == name:
+    #         t, tid = worker.thread, -1
+    #         if hasattr(t, '_thread_id'):
+    #             tid = t._thread_id
+    #         else:
+    #             for id, thread in threading._active.items():
+    #                 if thread is t:
+    #                     tid = id
+    #         # TODO: quickfix test for py3.10
+    #         tid = worker.tid
+    #         ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_ulong(t.ident), ctypes.py_object(KeyboardInterrupt))
             # Python 3.7 updates first parameter type to unsigned long
             # This is QUITE the hack...
     with DbCursor() as c:

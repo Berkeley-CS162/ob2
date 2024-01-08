@@ -183,6 +183,7 @@ def create_build(c, job_name, source, commit, message, build_type="build"):
     return build_name
 
 
+# TODO: fix for slip days
 def assign_grade_batch(c, users, assignment, score, slipunits, transaction_name, description,
                        source, manual=False, dont_lower=False):
     """

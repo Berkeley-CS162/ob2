@@ -99,7 +99,7 @@ class Worker(object):
         try:
             # if the job doesn't exist for some reason, the resulting TypeError will be caught
             # and logged
-            due_date = assignment.due_date
+            due_date = assignment.due_date 
             job_handler = get_job(job_name)
             num_args = len(inspect.signature(job_handler).parameters)
             container_id = None
@@ -154,7 +154,7 @@ class Worker(object):
             return
 
         self._log("Autograder build %s complete (score: %s)" % (build_name, str(score)))
-
+############## ONLY NEED TO CHANGE STUFF BELOW FOR SLIP DAYS/EXTENSIONS
         while True:
             try:
                 with DbCursor() as c:
@@ -162,6 +162,10 @@ class Worker(object):
                                  log = ?, container_id = ? WHERE build_name = ?''',
                               [SUCCESS, score, now_str(), log, container_id, build_name])
                     slipunits = slip_units(due_date, started)
+                    # TODO: store slip days remaining per assignment type for each user. then check
+                    # if they can use slip days
+                    # also, per user, store extensions
+                    # kinda tricky because of retroactive extensions tho...
                     if job.graded:
                         affected_users = assign_grade_batch(c, owners, job_name, float(score),
                                                             slipunits, build_name, description,
