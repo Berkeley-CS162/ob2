@@ -84,10 +84,9 @@ def _assign_repo(repo_name, members=[]):
     collaborators = {user.login for user in repo.collaborators()}
 
     for member in members:
-        if member not in collaborators:
-            successfully_added = repo.add_collaborator(member)
-            assert successfully_added, "Unable to add member %s to %s" % (repr(member),
-                                                                          repr(fq_repo_name))
+        successfully_added = repo.add_collaborator(member, permission="push")
+        assert successfully_added, "Unable to add member %s to %s" % (repr(member),
+                                                                        repr(fq_repo_name))
 
 def _resend_invites(repo_name, members=[]):
     """
@@ -99,11 +98,11 @@ def _resend_invites(repo_name, members=[]):
     github = _get_github_admin()
     repo = github.repository(config.github_organization, repo_name)
     collaborators = {user.login for user in repo.collaborators()}
+    logging.info(f"collabs: {collaborators}")
     for member in members:
-        if member not in collaborators:
-            successfully_added = repo.add_collaborator(member)
-            assert successfully_added, "Unable to add member %s to %s" % (repr(member),
-                                                                          repr(repo_name))
+        successfully_added = repo.add_collaborator(member, permission="push")
+        assert successfully_added, "Unable to add member %s to %s" % (repr(member),
+                                                                        repr(repo_name))
 
 
 class GitHubTransactionError(Exception):
