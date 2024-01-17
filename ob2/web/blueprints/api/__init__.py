@@ -19,6 +19,8 @@ blueprint.add_url_rule("/api/hello_world", "hello_world", lambda: "hello world",
 @send_email.bind(blueprint)
 @validates_master_secret
 def send_email(app, is_staging, sender, target, subject, body, targets = [], attachments = {}, extra_headers = []):
+    return ("CS 162 mailer service has been shut down because of the campus authenticated SMTP mandate. \
+            Please contact the course email or a staff member in eecs-crossroads if you have questions.", 410)
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = sender
