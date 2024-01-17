@@ -14,6 +14,7 @@ from ob2.database import DbCursor
 from ob2.util.hooks import apply_filters
 from ob2.util.templating import JINJA_EXPORTS
 from ob2.util.resumable_queue import ResumableQueue
+import logging
 
 
 jinja_environment = None
@@ -138,7 +139,7 @@ class MailerQueue(ResumableQueue):
             #
             # Returns:
             #   An smtplib.SMTP() object (or compatible) that can be used to send mail.
-            smtp_server = apply_filters("connect-to-smtp", smtplib.SMTP())
+            smtp_server = apply_filters("connect-to-smtp", smtplib.SMTP_SSL("smtp.gmail.com", 465))
 
             smtp_server.sendmail(*payload)
             smtp_server.quit()
