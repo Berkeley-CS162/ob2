@@ -185,7 +185,7 @@ class Worker(object):
                     email = owner_emails.get(owner)
                     if not email:
                         continue
-                    subject = "%s complete - score %s / %s" % (build_name, str(score),
+                    subject = "[CS162 AG]%s complete - score %s / %s" % (build_name, str(score),
                                                                str(full_score))
                     if owner not in affected_users:
                         subject += " (no effect on grade)"
