@@ -139,7 +139,7 @@ class MailerQueue(ResumableQueue):
             #
             # Returns:
             #   An smtplib.SMTP() object (or compatible) that can be used to send mail.
-            smtp_server = apply_filters("connect-to-smtp", smtplib.SMTP_SSL("bcop.berkeley.edu", 587))
+            smtp_server = apply_filters("connect-to-smtp", smtplib.SMTP_SSL("bcop.berkeley.edu", 465))
 
             smtp_server.sendmail(*payload)
             smtp_server.quit()
