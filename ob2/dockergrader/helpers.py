@@ -183,7 +183,13 @@ def copytree(source, destination, symlinks=True):
 
     """
     shutil.copytree(source, destination, symlinks=symlinks)
+    
+def force_copytree(source, destination, symlinks=True):
+    """
+    Copy recursively, overwriting if directories exist.
 
+    """
+    shutil.copytree(source, destination, symlinks=symlinks, dirs_exist_ok=True)
 
 def safe_get_results(output_file_path, score_file_path):
     """
