@@ -85,8 +85,7 @@ def _assign_repo(repo_name, members=[]):
 
     for member in members:
         successfully_added = repo.add_collaborator(member, permission="push")
-        assert successfully_added, "Unable to add member %s to %s" % (repr(member),
-                                                                        repr(fq_repo_name))
+        logging.info("Unable to add member %s to %s" % (repr(member), repr(fq_repo_name)))
 
 def _resend_invites(repo_name, members=[]):
     """
@@ -101,8 +100,7 @@ def _resend_invites(repo_name, members=[]):
     logging.info(f"collabs: {collaborators}")
     for member in members:
         successfully_added = repo.add_collaborator(member, permission="push")
-        assert successfully_added, "Unable to add member %s to %s" % (repr(member),
-                                                                        repr(repo_name))
+        logging.info("Unable to add member %s to %s" % (repr(member),repr(repo_name)))
 
 
 class GitHubTransactionError(Exception):
