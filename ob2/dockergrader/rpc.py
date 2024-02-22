@@ -46,6 +46,7 @@ class DockerClient(object):
                 docker.types.Ulimit(name='nofile', soft=max_files, hard=max_files),
                 docker.types.Ulimit(name='nice', soft=5, hard=5)
             ],
+            'pids_limit': max_procs,
             'detach': True,
             'security_opt': ["apparmor:%s" % config.dockergrader_apparmor_profile] if config.dockergrader_apparmor_profile else [],
             'tty': True,
